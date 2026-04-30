@@ -46,16 +46,17 @@ public class Plugin : BasePlugin
          * typeof(PlayerCharacter) specifies the class we want to patch
          * "DamageHP" specifies the function we want to patch(you can also do nameof(function) if you prefer but private functions won't work with that)
          * new Type[] {typeof(float), typeof(bool)} specifies the parameters of the function we want to patch, this is necessary if there are multiple functions with the same name
-         * The [HarmonyPostfix] attribute is used to specify that this function should be called after the original function and is also necessary for the patch to work
+         * The [HarmonyPrefix] attribute is used to specify that this function should be called before the original function and is also necessary for the patch to work
          */
         [HarmonyPatch(typeof(PlayerCharacter))]
         // If there is only one function with the function name(in the class), you can leave out the new Type[] part
         [HarmonyPatch("DamageHP", new Type[] {typeof(float), typeof(bool)})] 
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         
         // You can name this whatever you want, but it must be static. the parameters must match the original function, with an optional __instance parameter at the start if you want to access instance variable
         // NOTE: not all parameters need to be included, only the ones you need
-        public static void DamageHpPatch(float damage)
+        // if you are replacing or modifying a parameter in Prefix you MUST put ref before the type or the original parameter won't be modified when the function runs
+        public static void DamageHpPatch(ref float damage)
         {
             var oldDamageValue = damage; // Store the original damage value for logging purposes
             damage = 0; // This will make the damage taken from an action to 0
